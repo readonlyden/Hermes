@@ -1,50 +1,46 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
+﻿using System.Threading.Channels;
 
-namespace Hermes.BackgroundTasks
+namespace Hermes.BackgroundTasks;
+
+public class BackgroundTaskQueue : IBackgroundTaskQueue
 {
-    public class BackgroundTaskQueue : IBackgroundTaskQueue
+    private readonly Channel<Func<CancellationToken, ValueTask>> _queue;
+
+    public BackgroundTaskQueue(int capacity)
     {
-        private readonly Channel<Func<CancellationToken, ValueTask>> _queue;
-
-        public BackgroundTaskQueue(int capacity)
+        if (capacity <= 0)
         {
-            if (capacity <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(capacity));
-            }
-
-            // Capacity should be set based on the expected application load and
-            // number of concurrent threads accessing the queue.
-            // BoundedChannelFullMode.Wait will cause calls to WriteAsync() to return a task,
-            // which completes only when space became available. This leads to backpressure,
-            // in case too many publishers/calls start accumulating.
-            var options = new BoundedChannelOptions(capacity)
-            {
-                FullMode = BoundedChannelFullMode.Wait
-            };
-            _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
+            throw new ArgumentOutOfRangeException(nameof(capacity));
         }
 
-        public async ValueTask EnqueueAsync(
-            Func<CancellationToken, ValueTask> workItem)
+        // Capacity should be set based on the expected application load and
+        // number of concurrent threads accessing the queue.
+        // BoundedChannelFullMode.Wait will cause calls to WriteAsync() to return a task,
+        // which completes only when space became available. This leads to backpressure,
+        // in case too many publishers/calls start accumulating.
+        var options = new BoundedChannelOptions(capacity)
         {
-            if (workItem == null)
-            {
-                throw new ArgumentNullException(nameof(workItem));
-            }
+            FullMode = BoundedChannelFullMode.Wait
+        };
+        _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
+    }
 
-            await _queue.Writer.WriteAsync(workItem);
+    public async ValueTask EnqueueAsync(
+        Func<CancellationToken, ValueTask> workItem)
+    {
+        if (workItem == null)
+        {
+            throw new ArgumentNullException(nameof(workItem));
         }
 
-        public async ValueTask<Func<CancellationToken, ValueTask>> DequeueAsync(
-            CancellationToken cancellationToken)
-        {
-            var workItem = await _queue.Reader.ReadAsync(cancellationToken);
+        await _queue.Writer.WriteAsync(workItem);
+    }
 
-            return workItem;
-        }
+    public async ValueTask<Func<CancellationToken, ValueTask>> DequeueAsync(
+        CancellationToken cancellationToken)
+    {
+        var workItem = await _queue.Reader.ReadAsync(cancellationToken);
+
+        return workItem;
     }
 }
