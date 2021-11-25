@@ -4,32 +4,31 @@ using System.Threading.Tasks;
 using Hermes.BackgroundTasks;
 using Xunit;
 
-namespace Hermes.Tests
+namespace Hermes.Tests;
+
+public class BackgroundTaskQueueTests
 {
-    public class BackgroundTaskQueueTests
+    private const int DefaultQueueCapacity = 10;
+
+    [Fact]
+    public async Task EnqueueDequeueShouldWorkAsExpected()
     {
-        private const int DefaultQueueCapacity = 10;
+        int numberOfCalls = 0;
+        CancellationToken cancellationToken = default;
 
-        [Fact]
-        public async Task EnqueueDequeueShouldWorkAsExpected()
+        Func<CancellationToken, ValueTask> func = _ =>
         {
-            int numberOfCalls = 0;
-            CancellationToken cancellationToken = default;
+            numberOfCalls++;
+            return ValueTask.CompletedTask;
+        };
 
-            Func<CancellationToken, ValueTask> func = _ =>
-            {
-                numberOfCalls++;
-                return ValueTask.CompletedTask;
-            };
+        var backgroundQueue = new BackgroundTaskQueue(DefaultQueueCapacity);
 
-            var backgroundQueue = new BackgroundTaskQueue(DefaultQueueCapacity);
+        await backgroundQueue.EnqueueAsync(func);
+        var funcFromQueue = await backgroundQueue.DequeueAsync(cancellationToken);
 
-            await backgroundQueue.EnqueueAsync(func);
-            var funcFromQueue = await backgroundQueue.DequeueAsync(cancellationToken);
+        await funcFromQueue(cancellationToken);
 
-            await funcFromQueue(cancellationToken);
-
-            Assert.Equal(1, numberOfCalls);
-        }
+        Assert.Equal(1, numberOfCalls);
     }
 }
