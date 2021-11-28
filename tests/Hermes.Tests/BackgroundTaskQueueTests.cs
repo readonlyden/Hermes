@@ -16,7 +16,7 @@ public class BackgroundTaskQueueTests
         int numberOfCalls = 0;
         CancellationToken cancellationToken = default;
 
-        Func<CancellationToken, ValueTask> func = _ =>
+        var func = (CancellationToken _) =>
         {
             numberOfCalls++;
             return ValueTask.CompletedTask;
