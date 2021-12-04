@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Hermes.BackgroundTasks;
 using Xunit;
 
-namespace Hermes.Tests;
+namespace Hermes.Tests.BackgroundTasks;
 
 public class BackgroundTaskQueueTests
 {
@@ -16,7 +15,7 @@ public class BackgroundTaskQueueTests
         int numberOfCalls = 0;
         CancellationToken cancellationToken = default;
 
-        Func<CancellationToken, ValueTask> func = _ =>
+        var func = (CancellationToken _) =>
         {
             numberOfCalls++;
             return ValueTask.CompletedTask;
