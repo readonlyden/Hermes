@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Hermes.BackgroundTasks;
 using Xunit;
 
-namespace Hermes.Tests;
+namespace Hermes.Tests.BackgroundTasks;
 
 public class BackgroundTaskQueueTests
 {
