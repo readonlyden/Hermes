@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 builder.Services.AddBackgroundTasks();
 
 var app = builder.Build();
@@ -20,18 +21,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", async ([FromServices] ILogger<Program> logger, [FromServices] IBackgroundTaskQueue backgroundTaskQueue) =>
-{
-    logger.LogInformation("Handling POST...");
-    await backgroundTaskQueue.EnqueueAsync(async _ =>
-    {
-        logger.LogInformation("Handling background task...");
-
-        await Task.Delay(5000);
-
-        logger.LogInformation("Handled background task...");
-    });
-})
-    .WithName("EndpointWithBackgroundTask");
-
+app.MapControllers();
 app.Run();
