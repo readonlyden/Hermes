@@ -2,7 +2,7 @@
 
 namespace Hermes.BackgroundTasks;
 
-public class BackgroundTasksConfig
+public class BackgroundTasksOptions
 {
     public const int DefaultQueueCapacity = 10;
 
@@ -13,11 +13,11 @@ public static class BackgroundTasksServiceCollectionExtensions
 {
     public static IServiceCollection AddBackgroundTasks(
         this IServiceCollection services,
-        Action<BackgroundTasksConfig>? optionsBuilder = null)
+        Action<BackgroundTasksOptions>? optionsBuilder = null)
     {
-        var backgroundTasksConfig = new BackgroundTasksConfig
+        var backgroundTasksConfig = new BackgroundTasksOptions
         {
-            QueueCapacity = BackgroundTasksConfig.DefaultQueueCapacity
+            QueueCapacity = BackgroundTasksOptions.DefaultQueueCapacity
         };
 
         if (optionsBuilder != null)
