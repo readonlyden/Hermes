@@ -38,11 +38,11 @@ public class ScheduledJobsHostedService : BackgroundService
 
         try
         {
-            List<Task> tasks = jobsThatShouldRun
-                .Select(job => Task.Run(() => job.ExecuteAsync(stoppingToken)))
-                .ToList();
-
-            await Task.WhenAny(tasks);
+            foreach(var job in jobsThatShouldRun)
+            {
+                var runTask = () => job.ExecuteAsync(stoppingToken).ConfigureAwait(false);
+                await Task.Run(runTask, stoppingToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
