@@ -11,8 +11,8 @@ public class BackgroundTasksHostedService : BackgroundService
     public BackgroundTasksHostedService(IBackgroundTaskQueue taskQueue,
         ILogger<BackgroundTasksHostedService> logger)
     {
-        _taskQueue = taskQueue;
-        _logger = logger;
+        _taskQueue = taskQueue ?? throw new ArgumentNullException(nameof(taskQueue));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +41,7 @@ public class BackgroundTasksHostedService : BackgroundService
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("BackgrounTasks Hosted Service is stopping.");
+        _logger.LogInformation("BackgrounTasks Hosted Service is stopping");
 
         await base.StopAsync(stoppingToken);
     }

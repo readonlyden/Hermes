@@ -1,7 +1,6 @@
 ﻿namespace Hermes.Scheduling;
 
-// TODO: Implement Scheduling
 public interface IJob
 {
-    Task ExecuteAsync(CancellationToken token = default);
+    Task ExecuteAsync(CancellationToken cancellationToken = default);
 }
